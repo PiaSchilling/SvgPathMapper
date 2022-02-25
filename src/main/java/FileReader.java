@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class FileReader {
 
@@ -109,59 +110,67 @@ public class FileReader {
             finalSplitArgs.addAll(Arrays.asList(temp));
         }
 
-        //split up leading 0s
-        StringBuffer commasAdded = new StringBuffer();
-        List<String> leadingNullSplitValues = new ArrayList<>();
-        List<String> finalSplitArgsCopy = new ArrayList<>(finalSplitArgs);
+        List<String> leadingNullSplitValues = new ArrayList<>(); //contains the split leading 0 values
+        List<String> finalSplitArgsCopy = new ArrayList<>(finalSplitArgs); // copy of the original array
 
-        int currentIndex = 0;
-        for (String s: finalSplitArgs){
-            leadingNullSplitValues.clear();
-            if(s.startsWith(".")){
-                for (int i = 0; i < s.length(); i++) {
+        for (String s : finalSplitArgs){
+            List<Character> characters = s.chars().mapToObj(c -> (char) c).collect(Collectors.toList());
+
+            long dotCount = characters.stream().filter(c -> c == '.').count();
+
+            if(dotCount > 1){ //there are multiple coordinates in this string -> needs to be split up
+                StringBuffer commasAdded = new StringBuffer();
+                int firstDotIndex = s.indexOf('.');
+
+                for (int i = firstDotIndex; i < s.length(); i++) {
+                    if(firstDotIndex != 0){
+                        commasAdded.append(s, 0, firstDotIndex);
+                        firstDotIndex = 0;
+                    }
                     commasAdded.append(s.charAt(i));
                     if(i != s.length()-1 && s.charAt(i+1) == '.'){
                         commasAdded.append(",");
                     }
                 }
+
+                if(!commasAdded.toString().isEmpty()){
+                    leadingNullSplitValues.clear();
+                    String[] split = commasAdded.toString().split(",");
+                    leadingNullSplitValues.addAll(Arrays.asList(split));
+
+                    int index = finalSplitArgsCopy.indexOf(s);
+                    finalSplitArgsCopy.remove(index);
+                    finalSplitArgsCopy.addAll(index,leadingNullSplitValues);
+                    commasAdded.delete(0,commasAdded.length());
+                }
             }
-
-            if(!commasAdded.toString().isEmpty()){
-                String[] split = commasAdded.toString().split(",");
-                leadingNullSplitValues.addAll(Arrays.asList(split));
-
-                finalSplitArgsCopy.remove(currentIndex);
-                finalSplitArgsCopy.addAll(currentIndex,leadingNullSplitValues);
-                commasAdded.delete(0,commasAdded.length());
-            }
-
-            currentIndex++;
         }
+
 
 
         System.out.println("Splitted " + Arrays.toString(finalSplitArgs.toArray()));
         //List<String> args = Arrays.asList(splitArgs);
 
         switch (identifier) {
-            case 'M' -> pathValues.add(new PathValue("M", "moveTo", 2, finalSplitArgs));
-            case 'm' -> pathValues.add(new PathValue("m", "moveToRelative", 2, finalSplitArgs));
-            case 'L' -> pathValues.add(new PathValue("L", "lineTo", 2, finalSplitArgs));
-            case 'l' -> pathValues.add(new PathValue("l", "lineToRelative", 2, finalSplitArgs));
-            case 'H' -> pathValues.add(new PathValue("H", "horizontalLineTo", 1, finalSplitArgs));
-            case 'h' -> pathValues.add(new PathValue("h", "horizontalLineToRelative", 1, finalSplitArgs));
-            case 'V' -> pathValues.add(new PathValue("V", "verticalLineTo", 1, finalSplitArgs));
-            case 'v' -> pathValues.add(new PathValue("v", "verticalLineToRelative", 1, finalSplitArgs));
-            case 'Z', 'z' -> pathValues.add(new PathValue("Z", "close", 0, finalSplitArgs));
-            case 'C' -> pathValues.add(new PathValue("C", "curveTo", 6, finalSplitArgs));
-            case 'c' -> pathValues.add(new PathValue("c", "curveToRelative", 6, finalSplitArgs));
-            case 'S' -> pathValues.add(new PathValue("S", "reflectiveCurveTo", 4, finalSplitArgs));
-            case 's' -> pathValues.add(new PathValue("s", "reflectiveCurveToRelative", 4, finalSplitArgs));
-            case 'Q' -> pathValues.add(new PathValue("Q", "quadTo", 4, finalSplitArgs));
-            case 'q' -> pathValues.add(new PathValue("q", "quadToRelative", 4, finalSplitArgs));
-            case 'T' -> pathValues.add(new PathValue("T", "reflectiveQuadTo", 2, finalSplitArgs));
-            case 't' -> pathValues.add(new PathValue("t", "reflectiveQuadToRelative", 2, finalSplitArgs));
-            case 'A' -> pathValues.add(new PathValue("A", "arcTo", 7, finalSplitArgs));
-            case 'a' -> pathValues.add(new PathValue("a", "arcToRelative", 7, finalSplitArgs));
+            case 'M' -> pathValues.add(new PathValue("M", "moveTo", 2, finalSplitArgsCopy));
+            case 'm' -> pathValues.add(new PathValue("m", "moveToRelative", 2, finalSplitArgsCopy));
+            case 'L' -> pathValues.add(new PathValue("L", "lineTo", 2, finalSplitArgsCopy));
+            case 'l' -> pathValues.add(new PathValue("l", "lineToRelative", 2, finalSplitArgsCopy));
+            case 'H' -> pathValues.add(new PathValue("H", "horizontalLineTo", 1, finalSplitArgsCopy));
+            case 'h' -> pathValues.add(new PathValue("h", "horizontalLineToRelative", 1, finalSplitArgsCopy));
+            case 'V' -> pathValues.add(new PathValue("V", "verticalLineTo", 1, finalSplitArgsCopy));
+            case 'v' -> pathValues.add(new PathValue("v", "verticalLineToRelative", 1, finalSplitArgsCopy));
+            case 'Z', 'z' -> pathValues.add(new PathValue("Z", "close", 0, finalSplitArgsCopy));
+            case 'C' -> pathValues.add(new PathValue("C", "curveTo", 6, finalSplitArgsCopy));
+            case 'c' -> pathValues.add(new PathValue("c", "curveToRelative", 6, finalSplitArgsCopy));
+            case 'S' -> pathValues.add(new PathValue("S", "reflectiveCurveTo", 4, finalSplitArgsCopy));
+            case 's' -> pathValues.add(new PathValue("s", "reflectiveCurveToRelative", 4, finalSplitArgsCopy));
+            case 'Q' -> pathValues.add(new PathValue("Q", "quadTo", 4, finalSplitArgsCopy));
+            case 'q' -> pathValues.add(new PathValue("q", "quadToRelative", 4, finalSplitArgsCopy));
+            case 'T' -> pathValues.add(new PathValue("T", "reflectiveQuadTo", 2, finalSplitArgsCopy));
+            case 't' -> pathValues.add(new PathValue("t", "reflectiveQuadToRelative", 2, finalSplitArgsCopy));
+            case 'A' -> pathValues.add(new PathValue("A", "arcTo", 7, finalSplitArgsCopy));
+            case 'a' -> pathValues.add(new PathValue("a", "arcToRelative", 7, finalSplitArgsCopy));
         }
 
         System.out.println(pathValues.toString());
