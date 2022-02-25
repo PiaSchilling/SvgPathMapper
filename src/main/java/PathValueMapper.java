@@ -8,43 +8,14 @@ import java.util.stream.Collectors;
 
 public class PathValueMapper {
 
-    /*PathValue M = new PathValue("M","moveTo",2);
-    PathValue m = new PathValue("m","moveToRelative",2);
-
-    PathValue H = new PathValue("H","horizontalLineTo",1);
-    PathValue h = new PathValue("h","horizontalLineToRelative",1);
-
-    PathValue V = new PathValue("V", "verticalLineTo",1);
-    PathValue v = new PathValue("v","verticalLineToRelative",1);*/
-
-    public static void main(String[] args) {
-        PathValueMapper pathValueMapper = new PathValueMapper();
-
-     /*  String fileString = fileReader.readFile(args[0]);
-       String trimmedString = fileReader.trimString(fileString);
-       fileReader.splitString(trimmedString);
-
-        fileReader.checkPathValues();*/
-
-        String fileString = pathValueMapper.readFile(args[0]);
-        pathValueMapper.trimString();
-        pathValueMapper.splitString();
-        pathValueMapper.checkPathValues();
-        pathValueMapper.formatOutput();
-
-    }
-
-    private String fileUrl;
-    private List<PathValue> pathValues = new ArrayList<>();
-    private List<PathValue> checkedPathValues = new ArrayList<>();
+    private final List<PathValue> pathValues = new ArrayList<>();
+    private final List<PathValue> checkedPathValues = new ArrayList<>();
     private String fileString;
     private String trimmedString;
-    private String[] splitStringValues;
 
 
     public String mapFile(String fileUrl) {
-
-        String fileString = readFile(fileUrl);
+        readFile(fileUrl);
         trimString();
         splitString();
         checkPathValues();
@@ -56,9 +27,8 @@ public class PathValueMapper {
      * reads the file and saves the file content to a string
      *
      * @param filePath the path to the file
-     * @return the string containing the file content
      */
-    private String readFile(String filePath) {
+    private void readFile(String filePath) {
         File file = new File(filePath);
         StringBuffer fileBuffer = new StringBuffer();
         try {
@@ -71,13 +41,10 @@ public class PathValueMapper {
             fileNotFoundException.printStackTrace();
         }
         this.fileString = fileBuffer.toString();
-        return fileBuffer.toString();
     }
 
     /**
      * splits the fileString after the d=
-     *
-     * @return the trimmed string only containing the information after the d=
      */
     private void trimString() {
         int startIndex = 0;
@@ -101,10 +68,9 @@ public class PathValueMapper {
      * splits before every word character
      */
     private void splitString() {
-        splitStringValues = trimmedString.split("(?=[a-zA-Z])");
+        String[] splitStringValues = trimmedString.split("(?=[a-zA-Z])");
         for (String s : splitStringValues) {
             if (!s.isEmpty() && !s.isBlank() && !s.startsWith("d") && !s.startsWith("\"")) {
-                System.out.println(s);
                 mapPathValues(s);
             }
         }
@@ -114,9 +80,8 @@ public class PathValueMapper {
      * creates PathValue objects form strings
      *
      * @param pathValue string to map into a pathValue
-     * @return
      */
-    private List<PathValue> mapPathValues(String pathValue) {
+    private void mapPathValues(String pathValue) {
         char identifier = pathValue.charAt(0); //leading letter
 
         String paramString = pathValue.substring(1); //remove identifier
@@ -165,10 +130,6 @@ public class PathValueMapper {
             }
         }
 
-
-        System.out.println("Splitted " + Arrays.toString(finalSplitArgs.toArray()));
-        //List<String> args = Arrays.asList(splitArgs);
-
         switch (identifier) {
             case 'M' -> pathValues.add(new PathValue("M", "moveTo", 2, finalSplitArgsCopy));
             case 'm' -> pathValues.add(new PathValue("m", "moveToRelative", 2, finalSplitArgsCopy));
@@ -190,19 +151,13 @@ public class PathValueMapper {
             case 'A' -> pathValues.add(new PathValue("A", "arcTo", 7, finalSplitArgsCopy));
             case 'a' -> pathValues.add(new PathValue("a", "arcToRelative", 7, finalSplitArgsCopy));
         }
-
-        System.out.println(pathValues.toString());
-
-        return pathValues;
     }
 
     /**
      * it might be the case that a path value hast too many arguments
      * if this is the case the object needs to be split into two objects of the same type
      */
-    private List<PathValue> checkPathValues() {
-        System.out.println("check - - - -- - - - - - -- -");
-        List<PathValue> fixedValues = new ArrayList<>();
+    private void checkPathValues() {
 
         for (PathValue p : pathValues) {
             if (!p.identifier.equals("Z") && p.coordinateCount != p.coordinates.size()) { //if needed arg length differs from real length it needs to be split
@@ -220,8 +175,6 @@ public class PathValueMapper {
                 checkedPathValues.add(p);
             }
         }
-
-        return fixedValues;
     }
 
     /**
@@ -262,8 +215,6 @@ public class PathValueMapper {
             buffer.append(")");
             buffer.append("\n");
         }
-
-        System.out.println(buffer);
         return buffer.toString();
     }
 }

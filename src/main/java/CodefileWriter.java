@@ -3,6 +3,12 @@ import java.io.FileReader;
 
 public class CodefileWriter {
 
+    /**
+     * replaces the placeholder strings in the template and wirtes the result to a new file named like the icon
+     * @param iconName the name of the icon which is represented by the svg file
+     * @param pathValueString the mapped path values
+     * @throws IOException when the template file is not found
+     */
     public void writeFile(String iconName, String pathValueString) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader("src/main/java/template"));
 
@@ -26,8 +32,9 @@ public class CodefileWriter {
         java.io.FileWriter fileWriter = new java.io.FileWriter(file);
         fileWriter.write(newContentPathValues);
 
+        System.out.println(newContentPathValues);
+
         fileWriter.close();
         reader.close();
     }
-
 }
