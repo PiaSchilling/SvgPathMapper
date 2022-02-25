@@ -68,14 +68,21 @@ public class FileReader {
      * @return the trimmed string only containing the information after the d=
      */
     private void trimString() {
-        int startIndex = fileString.indexOf(" d=");
-        int endIndex = fileString.indexOf(" transform");
+        int startIndex = 0;
+        try{
+            startIndex = fileString.indexOf(" d=");
+            int endIndex = fileString.indexOf(" transform");
 
-        if (startIndex > -1) {
-            trimmedString = fileString.substring(startIndex, endIndex - 1);
-        } else {
-            throw new IllegalArgumentException("File contains no d= ");
+            if (startIndex > -1) {
+                trimmedString = fileString.substring(startIndex, endIndex);
+            } else {
+                throw new IllegalArgumentException("File contains no d= ");
+            }
+        }catch (IndexOutOfBoundsException e){
+            int endIndex = fileString.indexOf("\"",startIndex+4);
+            trimmedString = fileString.substring(startIndex, endIndex);
         }
+
     }
 
     /**
