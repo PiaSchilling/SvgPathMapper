@@ -1,0 +1,22 @@
+package app.chipmunks.common.ui.icons
+
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.materialIcon
+import androidx.compose.material.icons.materialPath
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.PathBuilder
+
+public val Icons.Filled.Placeholder: ImageVector
+    get() {
+        if (_placeholder != null) {
+            return _placeholder!!
+        }
+        _placeholder = materialIcon(name = "Filled.Placeholder") {
+            materialPath {
+               pathValues
+            }
+        }
+        return _placeholder!!
+    }
+
+private var _placeholder: ImageVector? = null

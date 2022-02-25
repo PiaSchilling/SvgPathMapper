@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
-public class FileReader {
+public class PathValueMapper {
 
     /*PathValue M = new PathValue("M","moveTo",2);
     PathValue m = new PathValue("m","moveToRelative",2);
@@ -18,7 +18,7 @@ public class FileReader {
     PathValue v = new PathValue("v","verticalLineToRelative",1);*/
 
     public static void main(String[] args) {
-        FileReader fileReader = new FileReader();
+        PathValueMapper pathValueMapper = new PathValueMapper();
 
      /*  String fileString = fileReader.readFile(args[0]);
        String trimmedString = fileReader.trimString(fileString);
@@ -26,19 +26,31 @@ public class FileReader {
 
         fileReader.checkPathValues();*/
 
-        String fileString = fileReader.readFile(args[0]);
-        fileReader.trimString();
-        fileReader.splitString();
-        fileReader.checkPathValues();
-        fileReader.formatOutput();
+        String fileString = pathValueMapper.readFile(args[0]);
+        pathValueMapper.trimString();
+        pathValueMapper.splitString();
+        pathValueMapper.checkPathValues();
+        pathValueMapper.formatOutput();
 
     }
 
+    private String fileUrl;
     private List<PathValue> pathValues = new ArrayList<>();
     private List<PathValue> checkedPathValues = new ArrayList<>();
     private String fileString;
     private String trimmedString;
     private String[] splitStringValues;
+
+
+    public String mapFile(String fileUrl) {
+
+        String fileString = readFile(fileUrl);
+        trimString();
+        splitString();
+        checkPathValues();
+        return formatOutput();
+    }
+
 
     /**
      * reads the file and saves the file content to a string
@@ -69,7 +81,7 @@ public class FileReader {
      */
     private void trimString() {
         int startIndex = 0;
-        try{
+        try {
             startIndex = fileString.indexOf(" d=");
             int endIndex = fileString.indexOf(" transform");
 
@@ -78,8 +90,8 @@ public class FileReader {
             } else {
                 throw new IllegalArgumentException("File contains no d= ");
             }
-        }catch (IndexOutOfBoundsException e){
-            int endIndex = fileString.indexOf("\"",startIndex+4);
+        } catch (IndexOutOfBoundsException e) {
+            int endIndex = fileString.indexOf("\"", startIndex + 4);
             trimmedString = fileString.substring(startIndex, endIndex);
         }
 
@@ -120,39 +132,38 @@ public class FileReader {
         List<String> leadingNullSplitValues = new ArrayList<>(); //contains the split leading 0 values
         List<String> finalSplitArgsCopy = new ArrayList<>(finalSplitArgs); // copy of the original array
 
-        for (String s : finalSplitArgs){
+        for (String s : finalSplitArgs) {
             List<Character> characters = s.chars().mapToObj(c -> (char) c).collect(Collectors.toList());
 
             long dotCount = characters.stream().filter(c -> c == '.').count();
 
-            if(dotCount > 1){ //there are multiple coordinates in this string -> needs to be split up
+            if (dotCount > 1) { //there are multiple coordinates in this string -> needs to be split up
                 StringBuffer commasAdded = new StringBuffer();
                 int firstDotIndex = s.indexOf('.');
 
                 for (int i = firstDotIndex; i < s.length(); i++) {
-                    if(firstDotIndex != 0){
+                    if (firstDotIndex != 0) {
                         commasAdded.append(s, 0, firstDotIndex);
                         firstDotIndex = 0;
                     }
                     commasAdded.append(s.charAt(i));
-                    if(i != s.length()-1 && s.charAt(i+1) == '.'){
+                    if (i != s.length() - 1 && s.charAt(i + 1) == '.') {
                         commasAdded.append(",");
                     }
                 }
 
-                if(!commasAdded.toString().isEmpty()){
+                if (!commasAdded.toString().isEmpty()) {
                     leadingNullSplitValues.clear();
                     String[] split = commasAdded.toString().split(",");
                     leadingNullSplitValues.addAll(Arrays.asList(split));
 
                     int index = finalSplitArgsCopy.indexOf(s);
                     finalSplitArgsCopy.remove(index);
-                    finalSplitArgsCopy.addAll(index,leadingNullSplitValues);
-                    commasAdded.delete(0,commasAdded.length());
+                    finalSplitArgsCopy.addAll(index, leadingNullSplitValues);
+                    commasAdded.delete(0, commasAdded.length());
                 }
             }
         }
-
 
 
         System.out.println("Splitted " + Arrays.toString(finalSplitArgs.toArray()));
@@ -216,7 +227,7 @@ public class FileReader {
     /**
      * converts the pathValue objects into the correct output format
      */
-    private void formatOutput() {
+    private String formatOutput() {
         StringBuffer buffer = new StringBuffer();
         for (PathValue p : checkedPathValues) {
             buffer.append(p.mappedIdentifier);
@@ -253,5 +264,6 @@ public class FileReader {
         }
 
         System.out.println(buffer);
+        return buffer.toString();
     }
 }
