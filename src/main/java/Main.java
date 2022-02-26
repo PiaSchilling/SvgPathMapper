@@ -9,7 +9,7 @@ public class Main {
             CodefileWriter writer = new CodefileWriter();
 
             String pathValues = mapper.mapFile(args[0]);
-            writer.writeFile(args[1],pathValues);
+            writer.writeFile(args[1],pathValues, args[0]);
 
         } catch (IOException ioException) {
             ioException.printStackTrace();

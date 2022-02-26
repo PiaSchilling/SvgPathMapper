@@ -9,7 +9,7 @@ public class CodefileWriter {
      * @param pathValueString the mapped path values
      * @throws IOException when the template file is not found
      */
-    public void writeFile(String iconName, String pathValueString) throws IOException {
+    public void writeFile(String iconName, String pathValueString, String outputDirectory) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader("src/main/java/template"));
 
         String oldContent = "";
@@ -26,7 +26,7 @@ public class CodefileWriter {
         String newContentVarName = newContentIconName.replace("_placeholder","_"+ iconName.toLowerCase());
         String newContentPathValues = newContentVarName.replace("pathValues",pathValueString);
 
-        File file = new File("src/main/java/" + iconName);
+        File file = new File(getOutputDirectory(outputDirectory,iconName));
         file.createNewFile();
 
         java.io.FileWriter fileWriter = new java.io.FileWriter(file);
@@ -36,5 +36,14 @@ public class CodefileWriter {
 
         fileWriter.close();
         reader.close();
+    }
+
+    private String getOutputDirectory(String url, String iconName){
+        int splitIndex = url.lastIndexOf("/");
+        String directoryUrl = url.substring(0,splitIndex);
+        String fileUrl = directoryUrl + "/" + iconName + ".kt";
+
+        System.out.println(fileUrl + " - - - - - - - - - - - - - - -- - - -- - - - ");
+        return fileUrl;
     }
 }
