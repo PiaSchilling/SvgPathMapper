@@ -89,10 +89,10 @@ public class PathValueMapper {
 
         String[] splitCoordinatesMinus = coordinatesOnlyString.split("(?=[-])"); //separate between minus values
 
-        //separate between every comma
+        //separate between every comma or whitespace
         List<String> splitCoordinatesComma = new ArrayList<>();
         for (String s : splitCoordinatesMinus) {
-            String[] splitValues = s.split("[,]");
+            String[] splitValues = s.split("[, ]");
             splitCoordinatesComma.addAll(Arrays.asList(splitValues));
         }
 
