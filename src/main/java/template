@@ -13,7 +13,7 @@ public val Icons.Filled.Placeholder: ImageVector
         }
         _placeholder = materialIcon(name = "Filled.Placeholder") {
             materialPath {
-               pathValues
+pathValues
             }
         }
         return _placeholder!!

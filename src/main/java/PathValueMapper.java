@@ -200,6 +200,7 @@ public class PathValueMapper {
     private String formatOutput() {
         StringBuilder builder = new StringBuilder();
         for (PathValue p : checkedPathValues) {
+            builder.append(" ".repeat(15));
             builder.append(p.mappedIdentifier);
             builder.append("(");
 
