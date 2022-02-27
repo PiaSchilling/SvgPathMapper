@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Class is responsible to handle everything related to the transformation attribute
+ */
 public class TransformationFlatter {
 
     private final HashMap<String, Double> matrixMap = new HashMap<>();
@@ -14,7 +17,7 @@ public class TransformationFlatter {
      * checks if the svgFile contains the transform attribute
      *
      * @param fileString the string which contains the whole svg file
-     * @return true if transformed false if not
+     * @return true if transformed false if not, if false no transformation needed
      */
     public boolean checkTransformed(String fileString) {
         return fileString.contains("transform") && fileString.contains("matrix");
@@ -60,6 +63,12 @@ public class TransformationFlatter {
         return matrixMap;
     }
 
+    /**
+     * calculates the pathValue coordinates new based on the values in the transformation matrix
+     * @param fileString the string which contains the whole svg file
+     * @param pathValues list of "old"/untransformed pathValue objects
+     * @return list of all transformed pathValues
+     */
     public List<PathValue> flatTransformation(String fileString, List<PathValue> pathValues) {
 
             String matrixString = extractTransformationMatrixString(fileString);
@@ -90,6 +99,12 @@ public class TransformationFlatter {
             return transformedPathValues;
     }
 
+    /**
+     * calculating the coordinates of h and H PathValues new based on the transformation matrix values
+     * @param pathValue the pathValue which coordinates should be calculated
+     * @param coordinates already extracted list of the pathValues coordinates
+     * @return the pathValue with an updated list of newly calculated coordinates
+     */
     private PathValue hTransformation(PathValue pathValue, List<Double> coordinates) {
         if (StringUtils.isAllLowerCase(pathValue.identifier)) {
             pathValue.coordinates.set(0,calculateXRelative(coordinates.get(0), 0d).toString());
@@ -99,6 +114,12 @@ public class TransformationFlatter {
         return pathValue;
     }
 
+    /**
+     * calculating the coordinates of v and V PathValues new based on the transformation matrix values
+     * @param pathValue the pathValue which coordinates should be calculated
+     * @param coordinates already extracted list of the pathValues coordinates
+     * @return the pathValue with an updated list of newly calculated coordinates
+     */
     private PathValue vTransformation(PathValue pathValue, List<Double> coordinates) {
         if (StringUtils.isAllLowerCase(pathValue.identifier)) {
             pathValue.coordinates.set(0,calculateYRelative(0d,coordinates.get(0)).toString());
@@ -108,6 +129,12 @@ public class TransformationFlatter {
         return pathValue;
     }
 
+    /**
+     * calculating the coordinates of m,M,l,L and t,T PathValues new based on the transformation matrix values
+     * @param pathValue the pathValue which coordinates should be calculated
+     * @param coordinates already extracted list of the pathValues coordinates
+     * @return the pathValue with an updated list of newly calculated coordinates
+     */
     private PathValue mltTransformation(PathValue pathValue, List<Double> coordinates){
         Double oldX = coordinates.get(0);
         Double oldY = coordinates.get(1);
@@ -126,6 +153,12 @@ public class TransformationFlatter {
         return pathValue;
     }
 
+    /**
+     * calculating the coordinates of c and C PathValues new based on the transformation matrix values
+     * @param pathValue the pathValue which coordinates should be calculated
+     * @param coordinates already extracted list of the pathValues coordinates
+     * @return the pathValue with an updated list of newly calculated coordinates
+     */
     private PathValue cTransformation(PathValue pathValue, List<Double> coordinates){
         Double oldX1 = coordinates.get(0);
         Double oldY1 = coordinates.get(1);
@@ -156,6 +189,12 @@ public class TransformationFlatter {
         return pathValue;
     }
 
+    /**
+     * calculating the coordinates of s,S and q,Q PathValues new based on the transformation matrix values
+     * @param pathValue the pathValue which coordinates should be calculated
+     * @param coordinates already extracted list of the pathValues coordinates
+     * @return the pathValue with an updated list of newly calculated coordinates
+     */
     private PathValue sqTransformation(PathValue pathValue, List<Double> coordinates){
         Double oldX1 = coordinates.get(0);
         Double oldY1 = coordinates.get(1);
@@ -180,6 +219,12 @@ public class TransformationFlatter {
         return pathValue;
     }
 
+    /**
+     * calculating the coordinates of a and A PathValues new based on the transformation matrix values
+     * @param pathValue the pathValue which coordinates should be calculated
+     * @param coordinates already extracted list of the pathValues coordinates
+     * @return the pathValue with an updated list of newly calculated coordinates
+     */
     private PathValue aTransformation(PathValue pathValue, List<Double> coordinates){
         Double oldX = coordinates.get(5);
         Double oldY = coordinates.get(6);
@@ -200,26 +245,44 @@ public class TransformationFlatter {
         return pathValue;
     }
 
+    /**
+     * calculate new x value of non relative coordinates
+     * @param xCoordinate x value of the coordinate pair
+     * @param yCoordinate y value of the coordinate pair
+     * @return the new value of the x
+     */
     private Double calculateX(Double xCoordinate, Double yCoordinate) {
-        double newX = matrixMap.get("a") * xCoordinate + matrixMap.get("c") * yCoordinate + matrixMap.get("e");
-        return newX;
+        return matrixMap.get("a") * xCoordinate + matrixMap.get("c") * yCoordinate + matrixMap.get("e");
     }
 
+    /**
+     * calculate new x value of relative coordinates
+     * @param xCoordinate x value of the coordinate pair
+     * @param yCoordinate y value of the coordinate pair
+     * @return the new value of the x
+     */
     private Double calculateXRelative(Double xCoordinate, Double yCoordinate) {
-        double newX = matrixMap.get("a") * xCoordinate + matrixMap.get("c") * yCoordinate;
-        return newX;
+        return matrixMap.get("a") * xCoordinate + matrixMap.get("c") * yCoordinate;
     }
 
+    /**
+     * calculate new y value of non relative coordinates
+     * @param xCoordinate x value of the coordinate pair
+     * @param yCoordinate y value of the coordinate pair
+     * @return the new value of the y
+     */
     private Double calculateY(Double xCoordinate, Double yCoordinate) {
-        double newY = matrixMap.get("b") * xCoordinate + matrixMap.get("d") * yCoordinate + matrixMap.get("f");
-        return newY;
+        return matrixMap.get("b") * xCoordinate + matrixMap.get("d") * yCoordinate + matrixMap.get("f");
     }
 
+    /**
+     * calculate new y value of relative coordinates
+     * @param xCoordinate x value of the coordinate pair
+     * @param yCoordinate y value of the coordinate pair
+     * @return the new value of the y
+     */
     private Double calculateYRelative(Double xCoordinate, Double yCoordinate) {
-        double newY = matrixMap.get("b") * xCoordinate + matrixMap.get("d") * yCoordinate;
-        return newY;
+        return matrixMap.get("b") * xCoordinate + matrixMap.get("d") * yCoordinate;
     }
-
-
 
 }

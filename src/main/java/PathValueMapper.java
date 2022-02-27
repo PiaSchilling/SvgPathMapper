@@ -10,7 +10,7 @@ import java.util.Scanner;
 public class PathValueMapper {
 
     private final List<PathValue> pathValues = new ArrayList<>(); //list of all PathValues
-    private final List<PathValue> checkedPathValues = new ArrayList<>(); //list of all final PathValues after checking (see checkPathValues())
+    private List<PathValue> checkedPathValues = new ArrayList<>(); //list of all final PathValues after checking (see checkPathValues())
     private String fileString; //string contains the whole svg file content
     private String extractedPathString; //string contains only the needed part of the fileString (after d=)
 
@@ -22,7 +22,7 @@ public class PathValueMapper {
         splitString();
         checkPathValues();
         if(t.checkTransformed(fileString)){
-            t.flatTransformation(fileString,checkedPathValues);
+            checkedPathValues = t.flatTransformation(fileString,checkedPathValues);
         }
         return formatOutput();
     }
