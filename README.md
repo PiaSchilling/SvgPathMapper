@@ -1,2 +1,2 @@
 # SvgPathMapper
-Simple programm to convert xml svg code into kotlin pathBuilder arguments
+Simple programm to convert xml svg files into material icon kotlin files
